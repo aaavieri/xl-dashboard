@@ -9,6 +9,7 @@
         <sidebar-item :link="{name: '数据管理', icon: 'mintui mintui-iconset0358', path: '/manageData'}">
           <sidebar-item :link="{name: '医疗版', path: '/manageData/medicalData'}"></sidebar-item>
           <sidebar-item :link="{name: '大健康', path: '/manageData/healthyData'}"></sidebar-item>
+          <sidebar-item :link="{name: '商城', path: '/manageData/goodsData'}"></sidebar-item>
         </sidebar-item>
         <!--<sidebar-item :link="{name: 'Pages', icon: 'now-ui-icons design_image'}">-->
           <!--<sidebar-item :link="{name: 'Pricing', path: '/pricing'}"></sidebar-item>-->
@@ -54,10 +55,10 @@
     </side-bar>
     <div class="main-panel">
       <top-navbar></top-navbar>
-      <sidebar-share :color.sync="sidebarBackground"
-                     :fixed-navbar.sync="fixedNavbar"
-                     :sidebarMini.sync="sidebarMini">
-      </sidebar-share>
+      <!--<sidebar-share :color.sync="sidebarBackground"-->
+                     <!--:fixed-navbar.sync="fixedNavbar"-->
+                     <!--:sidebarMini.sync="sidebarMini">-->
+      <!--</sidebar-share>-->
       <router-view name="header"></router-view>
 
       <div :class="{content: !$route.meta.hideContent}" @click="toggleSidebar">

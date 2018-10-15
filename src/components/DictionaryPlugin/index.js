@@ -18,10 +18,16 @@ const Dictionary = {
       }
     })
   },
+  getItemList (key) {
+    if (!this.dictData[key]) {
+      this.dictData[key] = new Array()
+    }
+    return this.dictData[key]
+  },
   generateNewItem (tableName, type, name, dataType, callback) {
     var underLineType = this.humpToUnderLine(type)
     var categoryName = `${tableName}-${underLineType}`
-    var itemList = this.dictData[categoryName]
+    var itemList = this.getItemList(categoryName)
     if (itemList.findIndex((item) => item.name === name.trim()) > -1) {
       swal({
         title: '添加字典数据失败!',
@@ -101,10 +107,7 @@ const Dictionary = {
   },
   getDictByType (tableName, type) {
     var underLineType = this.humpToUnderLine(type)
-    if (!this.dictData[`${tableName}-${underLineType}`]) {
-      this.dictData[`${tableName}-${underLineType}`] = new Array()
-    }
-    return this.dictData[`${tableName}-${underLineType}`]
+    return this.getItemList(`${tableName}-${underLineType}`)
   },
   humpToUnderLine (str) {
     return str.split('').map(function (word) {
@@ -117,7 +120,7 @@ const Dictionary = {
   },
   getName (tableName, type, value) {
     var underLineType = this.humpToUnderLine(type)
-    var item = this.dictData[`${tableName}-${underLineType}`].find((item, index, arr) => {
+    var item = this.getItemList(`${tableName}-${underLineType}`).find((item, index, arr) => {
       return item.value == value
     })
     if (item) {

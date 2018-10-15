@@ -17,7 +17,8 @@
               <el-input ref="stringInput" v-model="item.value" v-if="item.dataType == 'string'" :disabled="!item.editable" :placeholder="getPlaceholder(item)" />
               <el-input-number v-model="item.value" v-else-if="item.dataType == 'number'" :disabled="!item.editable" :placeholder="getPlaceholder(item)"/>
               <el-input type="textarea" v-model="item.value" :autosize=true v-else-if="item.dataType == 'text'" :disabled="!item.editable" :placeholder="getPlaceholder(item)"/>
-              <checkbox v-model="item.value" v-else-if="item.dataType == 'check'" :disabled="!item.editable" >item.label</checkbox>
+              <json-object-editor v-else-if="item.dataType == 'jsonObject'" :columnName="item.columnName" :editData="item.value" @update-object="updateObject"/>
+              <json-array-editor v-else-if="item.dataType == 'jsonArray'" :columnName="item.columnName" :modelData="modelData" :editData="item.value" @update-array="updateArray"/>
               <el-select ref="select" v-model="item.value" v-else-if="item.dataType == 'dictionary'" :disabled="!item.editable" filterable :placeholder="getPlaceholder(item)" >
                 <el-option-group>
                 <el-option :value=0>
@@ -63,27 +64,31 @@
 <script>
 import { InputNumber, Input, Button, Select, Option, OptionGroup } from 'element-ui'
 import swal from 'sweetalert2'
+import JsonObjectEditor from 'src/pages/Dashboard/Components/JsonObjectEditor'
+import JsonArrayEditor from 'src/pages/Dashboard/Components/JsonArrayEditor'
 import dummyData from './dummyData'
-import Checkbox from "iview/src/components/checkbox/checkbox"
 export default {
   components: {
-    Checkbox,
+    JsonObjectEditor,
     [InputNumber.name]: InputNumber,
     [Input.name]: Input,
     [Button.name]: Button,
     [Select.name]: Select,
     [Option.name]: Option,
-    [OptionGroup.name]: OptionGroup
+    [OptionGroup.name]: OptionGroup,
+    [JsonObjectEditor.name]: JsonObjectEditor,
+    [JsonArrayEditor.name]: JsonArrayEditor
   },
-  name: 'EditData',
+  name: 'EditGoodsData',
   data () {
     return {
       actionType: 1,
-      dataType: 1,
+      dataType: 3,
       rowData: {},
       editData: [],
       centerDialogVisible: false,
-      isSaving: false
+      isSaving: false,
+      modelData: ['问题', '答案']
     }
   },
   computed: {
@@ -96,14 +101,7 @@ export default {
         default:
           title += '新建'
       }
-      switch (this.dataType) {
-        case 2:
-          title += '大健康'
-          break
-        default:
-          title += '医疗版'
-      }
-      return title + '数据'
+      return title + '商城商品数据'
     }
   },
   methods: {
@@ -177,18 +175,7 @@ export default {
       return this.$dictionary.getDictByType(this.getTableName(), type)
     },
     getTableName() {
-      var tableName = ''
-      switch (this.dataType) {
-        case 1:
-          tableName = 't_medical'
-          break
-        case 2:
-          tableName = 't_healthy'
-          break
-        default:
-          tableName = 't_medical'
-      }
-      return tableName
+      return 't_mall_goods'
     },
     newData () {
       if (this.actionType == 1) {
@@ -227,8 +214,8 @@ export default {
       }
       this.actionType = 1
       this.rowData.rowVersion = 1
-      this.rowData.serial = null
-      this.editData.find((item) => item.columnName === 'serial').value = null
+      this.rowData.id = null
+      this.editData.find((item) => item.columnName === 'id').value = null
       swal({
         title: '复制成功!',
         text: '请修改数据后保存',
@@ -255,9 +242,9 @@ export default {
         }
         rowData[item.columnName] = item.value
       }
-      var url = `/api/updateRecord/${this.dataType}/${rowData.serial}`
+      var url = `/api/updateGoods/${rowData.id}`
       if (this.actionType === 1) {
-        url = `/api/addRecord/${this.dataType}`
+        url = '/api/addGoods'
       }
       let editData = this
       this.$http.post(url, {rowData}).then(response => {
@@ -276,8 +263,8 @@ export default {
             if (result.value) {
               if (editData.actionType ===  1) {
                 editData.rowData.rowVersion = 1
-                editData.rowData.serial = response.data.data
-                editData.editData.find((item) => item.columnName === 'serial').value = response.data.data
+                editData.rowData.id = response.data.data
+                editData.editData.find((item) => item.columnName === 'id').value = response.data.data
                 editData.actionType = 2
               } else {
                 editData.rowData.rowVersion += 1
@@ -331,6 +318,13 @@ export default {
           callback()
         }
       })
+    },
+
+    updateObject (value, columnName) {
+      this.editData.find(item => item.columnName === columnName).value = value
+    },
+    updateArray (value, columnName) {
+      this.editData.find(item => item.columnName === columnName).value = value
     }
   },
   mounted () {

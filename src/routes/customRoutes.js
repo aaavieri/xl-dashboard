@@ -58,8 +58,11 @@ import Widgets from 'src/pages/Dashboard/Widgets.vue'
 // Xiaolijiyin
 import MedicalData from 'src/pages/Xiaoli/ManageData/MedicalData'
 import HealthyData from 'src/pages/Xiaoli/ManageData/HealthyData'
+import GoodsData from 'src/pages/Xiaoli/ManageData/GoodsData'
 import ShowData from 'src/pages/Xiaoli/ManageData/ShowData'
 import EditData from 'src/pages/Xiaoli/ManageData/EditData'
+import ShowGoodsData from 'src/pages/Xiaoli/ManageData/ShowGoodsData'
+import EditGoodsData from 'src/pages/Xiaoli/ManageData/EditGoodsData'
 
 import LoginBack from 'src/pages/Login/LoginBack'
 
@@ -108,6 +111,27 @@ let editDataMenu = {
           path: 'editData',
           name: 'EditHealthyData',
           components: {default: EditData, header: DefaultHeader},
+        }
+      ]
+    },
+    {
+      path: 'goodsData',
+      name: 'GoodsData',
+      redirect: {
+        path: '/manageData/goodsData/showGoodsData',
+        params: {}
+      },
+      components: {default: GoodsData, header: DefaultHeader},
+      children: [
+        {
+          path: 'showGoodsData',
+          name: 'ShowGoodsData',
+          components: {default: ShowGoodsData, header: DefaultHeader},
+        },
+        {
+          path: 'editGoodsData',
+          name: 'EditGoodsData',
+          components: {default: EditGoodsData, header: DefaultHeader},
         }
       ]
     }

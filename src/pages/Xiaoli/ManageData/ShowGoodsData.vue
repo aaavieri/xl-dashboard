@@ -131,7 +131,7 @@
       [FormItem.name]: FormItem,
       [Button.name]: Button
     },
-    name: 'ShowData',
+    name: 'EditGoodsData',
     computed: {
       /***
        * Returns a page from the searched data or the whole data. Search is performed in the watch section below
@@ -150,12 +150,7 @@
         return this.searchedData.length > 0 ? this.searchedData.length : this.tableData.length;
       },
       dataTypeName() {
-        switch (this.dataType) {
-          case 2:
-            return '大健康'
-          default:
-            return '医疗版'
-        }
+        return '商城商品'
       }
     },
     data () {
@@ -167,7 +162,7 @@
           total: 0
         },
         searchQuery: '',
-        propsToSearch: ['name', 'serial'],
+        propsToSearch: ['name'],
         tableColumns: [],
         tableData: [],
         originTableData: [],
@@ -180,7 +175,7 @@
     },
     methods: {
       addData () {
-        this.$router.push({name: 'EditMedicalData', params: {dataType: this.dataType, actionType: 1}})
+        this.$router.push({name: 'EditGoodsData', params: {dataType: this.dataType, actionType: 1}})
       },
       handleCopy (index, row) {
         swal({
@@ -196,8 +191,8 @@
         }).then((result) => {
           if(result.value){
             var copyRow = Object.assign(row)
-            copyRow.serial = null
-            this.$router.push({name: 'EditMedicalData', params: {dataType: this.dataType, actionType: 1, rowData: copyRow}})
+            copyRow.id = null
+            this.$router.push({name: 'EditGoodsData', params: {dataType: this.dataType, actionType: 1, rowData: copyRow}})
           }
         });
       },
@@ -214,7 +209,7 @@
           buttonsStyling: false
         }).then((result) => {
           if(result.value){
-            this.$router.push({name: 'EditMedicalData', params: {dataType: this.dataType, actionType: 2, rowData: row}})
+            this.$router.push({name: 'EditGoodsData', params: {dataType: this.dataType, actionType: 2, rowData: row}})
           }
         });
       },
@@ -244,7 +239,7 @@
       },
       deleteRow(row){
         let showData = this
-        this.$http.post(`/api/deleteRecord/${this.dataType}/${row.serial}`, {rowVersion: row.rowVersion}).then(response => {
+        this.$http.post(`/api/deleteGoods/${row.id}`, {rowVersion: row.rowVersion}).then(response => {
           if (response.data.success) {
             showData.searchTableData(() => {
               swal({
@@ -316,7 +311,7 @@
       },
       initTableData(data) {
         this.tableData = data
-        this.fuseSearch = new Fuse(this.tableData, {keys: ['name', 'serial'], threshold: 0.3})
+        this.fuseSearch = new Fuse(this.tableData, {keys: ['name'], threshold: 0.3})
         let result = this.tableData
         if (this.searchQuery.trim() !== '') {
           result = this.fuseSearch.search(this.searchQuery)
@@ -381,18 +376,7 @@
         return this.$dictionary.getName(this.getTableName(), type, value)
       },
       getTableName() {
-        var tableName = ''
-        switch (this.dataType) {
-          case 1:
-            tableName = 't_medical'
-            break
-          case 2:
-            tableName = 't_healthy'
-            break
-          default:
-            tableName = 't_medical'
-        }
-        return tableName
+        return 't_mall_goods'
       }
     },
     mounted () {
@@ -412,7 +396,7 @@
     props: {
       dataType: {
         type: Number,
-        default: 1
+        default: 3
       }
     }
   }
