@@ -53,7 +53,7 @@ import ShowGlitch from 'src/pages/Xiaoli/ShowGlitch.vue'
 // const Calendar = () => import('src/pages/Dashboard/Calendar/CalendarRoute.vue');
 // Charts
 // const Charts = () => import('src/pages/Dashboard/Charts.vue');
-import Widgets from 'src/pages/Dashboard/Widgets.vue'
+// import Widgets from 'src/pages/Dashboard/Widgets.vue'
 
 // Xiaolijiyin
 import MedicalData from 'src/pages/Xiaoli/ManageData/MedicalData'
@@ -63,6 +63,8 @@ import ShowData from 'src/pages/Xiaoli/ManageData/ShowData'
 import EditData from 'src/pages/Xiaoli/ManageData/EditData'
 import ShowGoodsData from 'src/pages/Xiaoli/ManageData/ShowGoodsData'
 import EditGoodsData from 'src/pages/Xiaoli/ManageData/EditGoodsData'
+
+import PictureListEditor from 'src/pages/Dashboard/Components/PictureListEditor'
 
 import LoginBack from 'src/pages/Login/LoginBack'
 
@@ -84,12 +86,12 @@ let editDataMenu = {
         {
           path: 'showData',
           name: 'ShowMedicalData',
-          components: {default: ShowData, header: DefaultHeader},
+          components: {default: ShowData, header: DefaultHeader}
         },
         {
           path: 'editData',
           name: 'EditMedicalData',
-          components: {default: EditData, header: DefaultHeader},
+          components: {default: EditData, header: DefaultHeader}
         }
       ]
     },
@@ -105,12 +107,12 @@ let editDataMenu = {
         {
           path: 'showData',
           name: 'ShowHealthyData',
-          components: {default: ShowData, header: DefaultHeader},
+          components: {default: ShowData, header: DefaultHeader}
         },
         {
           path: 'editData',
           name: 'EditHealthyData',
-          components: {default: EditData, header: DefaultHeader},
+          components: {default: EditData, header: DefaultHeader}
         }
       ]
     },
@@ -126,12 +128,18 @@ let editDataMenu = {
         {
           path: 'showGoodsData',
           name: 'ShowGoodsData',
-          components: {default: ShowGoodsData, header: DefaultHeader},
+          components: {default: ShowGoodsData, header: DefaultHeader}
         },
         {
           path: 'editGoodsData',
           name: 'EditGoodsData',
-          components: {default: EditGoodsData, header: DefaultHeader},
+          components: {default: EditGoodsData, header: DefaultHeader}
+        },
+        {
+          path: 'pictureListEditor',
+          name: 'editGoodsPictureList',
+          components: {default: PictureListEditor, header: DefaultHeader},
+          props: {default: true, header: false}
         }
       ]
     }
@@ -356,11 +364,9 @@ const routes = [
     ]
   },
   {path: '*', component: NotFound}
-];
+]
 
 export default routes
-
-
 
 // WEBPACK FOOTER //
 // ./src/routes/routes.js

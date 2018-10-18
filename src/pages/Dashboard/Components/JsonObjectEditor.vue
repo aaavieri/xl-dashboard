@@ -6,9 +6,10 @@
         <div class="row">
           <div class="col-md-12" v-for="(item, index) in innerData" :key="index">
             <div class="form-group  has-label">
-                <label>属性{{index + 1}}</label>
-                <el-input class="attribute-input" v-model="item.name" placeholder="请输入属性名" />
-                <el-input class="attribute-input" v-model="item.value" :placeholder="getPlaceholder(item, index)" @input="inputComplete()"/>
+              <label>属性{{index + 1}}</label>
+              <el-input class="attribute-input" v-model="item.name" placeholder="请输入属性名" />
+              <el-input class="attribute-input" v-model="item.value" :placeholder="getPlaceholder(item, index)" @input="inputComplete()"/>
+              <el-button class="select-primary mb-3" type="danger" icon="el-icon-delete" round @click="deleteData(index)"/>
             </div>
             <hr align="center" width="300" color="#987cb9" SIZE="1" v-if="index < innerData.length - 1"/>
           </div>
@@ -18,20 +19,6 @@
             </el-button>
           </div>
         </div>
-        <!--<div class="row">-->
-          <!--<div class="col-md-5"/>-->
-          <!--<div class="col-md-7">-->
-            <!--<el-button class="select-primary mb-3" type="success" icon="el-icon-check" round :loading="isSaving" @click="saveData()">-->
-              <!--保存(S)-->
-            <!--</el-button>-->
-            <!--<el-button class="select-primary mb-3" type="warning" icon="el-icon-plus" round :loading="isSaving" @click="newData()">-->
-              <!--新建(N)-->
-            <!--</el-button>-->
-            <!--<el-button class="select-primary mb-3" type="primary" icon="el-icon-back" round @click="goBack()">-->
-              <!--返回(R)-->
-            <!--</el-button>-->
-          <!--</div>-->
-        <!--</div>-->
       </card>
     </div>
   </div>
@@ -70,6 +57,10 @@ export default {
         name: '',
         value: ''
       })
+    },
+    deleteData (index) {
+      this.innerData.splice(index, 1)
+      this.inputComplete()
     },
     inputComplete () {
       this.$emit('update-object', JSON.stringify(this.innerData), this.columnName)

@@ -9,6 +9,7 @@
               <label>{{model}}{{index + 1}}</label>
               <el-input class="attribute-input" v-model="item[indexModel]" placeholder="请输入属性名" @input="inputComplete()"/>
             </div>
+            <el-button class="select-primary mb-3" type="danger" icon="el-icon-delete" round @click="deleteData(index)"/>
             <hr align="center" width="300" color="#987cb9" SIZE="1" v-if="index < innerData.length - 1"/>
           </div>
           <div class="col-md-12">
@@ -64,6 +65,10 @@ export default {
   methods: {
     newData () {
       this.innerData.push(new Array(this.modelData.length).fill(''))
+    },
+    deleteData (index) {
+      this.innerData.splice(index, 1)
+      this.inputComplete()
     },
     inputComplete () {
       this.$emit('update-array', JSON.stringify(this.innerData), this.columnName)

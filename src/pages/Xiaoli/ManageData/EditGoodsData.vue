@@ -66,9 +66,11 @@ import { InputNumber, Input, Button, Select, Option, OptionGroup } from 'element
 import swal from 'sweetalert2'
 import JsonObjectEditor from 'src/pages/Dashboard/Components/JsonObjectEditor'
 import JsonArrayEditor from 'src/pages/Dashboard/Components/JsonArrayEditor'
+import PictureListEditor from 'src/pages/Dashboard/Components/PictureListEditor'
 import dummyData from './dummyData'
 export default {
   components: {
+    PictureListEditor,
     JsonObjectEditor,
     [InputNumber.name]: InputNumber,
     [Input.name]: Input,
@@ -77,7 +79,8 @@ export default {
     [Option.name]: Option,
     [OptionGroup.name]: OptionGroup,
     [JsonObjectEditor.name]: JsonObjectEditor,
-    [JsonArrayEditor.name]: JsonArrayEditor
+    [JsonArrayEditor.name]: JsonArrayEditor,
+    [PictureListEditor.name]: PictureListEditor
   },
   name: 'EditGoodsData',
   data () {
@@ -315,7 +318,9 @@ export default {
             app.$router.push('/loginBack')
           })
         } else {
-          callback()
+          if (callback) {
+            callback()
+          }
         }
       })
     },

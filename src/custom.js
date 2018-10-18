@@ -14,7 +14,7 @@ import 'src/assets/js/love'
 
 import DictionaryPlugin from './components/DictionaryPlugin'
 import HttpPlugin from './components/HttpPlugin'
-import { Loading } from 'element-ui';
+import { Loading } from 'element-ui'
 
 // plugin setup
 Vue.use(VueRouter)

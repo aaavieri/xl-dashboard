@@ -328,7 +328,9 @@ export default {
             app.$router.push('/loginBack')
           })
         } else {
-          callback()
+          if (callback) {
+            callback()
+          }
         }
       })
     }

@@ -43,13 +43,19 @@
           <el-table stripe
                     style="width: 100%;"
                     :data="queriedData()">
-            <el-table-column type="expand" fixed="left" @click="alert(1)">
+            <el-table-column type="expand" fixed="left">
               <template slot-scope="props">
                 <el-form label-position="left" inline class="demo-table-expand">
                   <el-form-item :label="column.label" v-for="column in tableColumns" :key="column.columnName" v-if="column.listDisplayPosition == 1">
                     <span v-if="column.dataType == 'dictionary'">{{ getDictionLabel(column.columnName, props.row[column.columnName])}}</span>
                     <span v-else>{{ props.row[column.columnName] }}</span>
                   </el-form-item>
+                  <span>商品图片</span>
+                  <el-carousel height="150px">
+                    <el-carousel-item v-for="item in 4" :key="item">
+                      <h3>{{ item }}</h3>
+                    </el-carousel-item>
+                  </el-carousel>
                 </el-form>
                 <!--<nav class="menu menu&#45;&#45;tsula">-->
                   <!--<div class="menu__item" v-for="column in tableColumns" :key="column.columnName" v-if="column.listDisplayPosition == 1">-->
@@ -93,6 +99,13 @@
                           size="sm" round icon>
                   <i class="fa fa-times"></i>
                 </n-button>
+                <div style="height: 5px"></div>
+                <n-button @click.native="handlePicture(props.$index, props.row)"
+                          type="primary"
+                          size="sm" round >
+                  <i class="now-ui-icons media-1_album"></i>
+                  商品图
+                </n-button>
               </div>
             </el-table-column>
           </el-table>
@@ -112,7 +125,7 @@
   </div>
 </template>
 <script>
-  import {Table, TableColumn, Select, Option, Form, FormItem, Button} from 'element-ui'
+  import {Table, TableColumn, Select, Option, Form, FormItem, Button, Carousel, CarouselItem} from 'element-ui'
   import {Pagination as NPagination} from 'src/components'
   import axios from 'axios'
   // import users from './users'
@@ -129,7 +142,9 @@
       [TableColumn.name]: TableColumn,
       [Form.name]: Form,
       [FormItem.name]: FormItem,
-      [Button.name]: Button
+      [Button.name]: Button,
+      [Carousel.name]: Carousel,
+      [CarouselItem.name]: CarouselItem
     },
     name: 'EditGoodsData',
     computed: {
@@ -361,7 +376,9 @@
               app.$router.push('/loginBack')
             })
           } else {
-            callback()
+            if (callback) {
+              callback()
+            }
           }
         })
       },
@@ -377,6 +394,18 @@
       },
       getTableName() {
         return 't_mall_goods'
+      },
+      handlePicture (index, row) {
+        this.$router.push({
+          name: 'editGoodsPictureList',
+          params: {
+            uploadAction: `/backend/faces/file/uploadMallPic/${row.id}`,
+            getAction: `/api/getPictureList/${row.id}`,
+            removeAction: `/file/deleteMallPic/${row.id}`,
+            maxFile: 5,
+            displayMode: 2
+          }
+        })
       }
     },
     mounted () {
