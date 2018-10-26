@@ -339,7 +339,7 @@ const routes = [
     path: '/',
     component: XiaoliLayout,
     redirect: '/showGlitch',
-    name: 'ShowGlitch',
+    name: 'MainPage',
     children: [
       {
         path: 'showGlitch',

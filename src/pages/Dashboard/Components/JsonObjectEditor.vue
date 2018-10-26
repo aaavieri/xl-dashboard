@@ -3,33 +3,36 @@
     <div class="col-12">
       <card>
         <!--<h4 slot="header" class="card-title">{{dataTypeName}}数据一览</h4>-->
-        <div class="row">
-          <div class="col-md-12" v-for="(item, index) in innerData" :key="index">
-            <div class="form-group  has-label">
-              <label>属性{{index + 1}}</label>
-              <el-input class="attribute-input" v-model="item.name" placeholder="请输入属性名" />
-              <el-input class="attribute-input" v-model="item.value" :placeholder="getPlaceholder(item, index)" @input="inputComplete()"/>
-              <el-button class="select-primary mb-3" type="danger" icon="el-icon-delete" round @click="deleteData(index)"/>
-            </div>
-            <hr align="center" width="300" color="#987cb9" SIZE="1" v-if="index < innerData.length - 1"/>
-          </div>
+        <!--<div class="row">-->
           <div class="col-md-12">
-            <el-button class="select-primary mb-3" type="warning" icon="el-icon-plus" round @click="newData()">
-            添加新属性
-            </el-button>
+            <div class="form-group  has-label col-md-4" style="display: inline-block" v-for="(item, index) in innerData" :key="index">
+              <label>{{placeholderLabel}}{{index + 1}}</label>
+              <el-input class="attribute-input" v-model="item.name" :placeholder="getPlaceholderName(item, index)" />
+              <el-input class="attribute-input" v-model="item.value" :placeholder="getPlaceholderValue(item, index)"/>
+              <el-row type="flex" justify="end">
+                <el-button class="select-primary mb-3 line-in-editor" type="danger" icon="el-icon-delete" round @click="deleteData(index)"/>
+              </el-row>
+              <!--<hr align="center" width="100%" color="#987cb9" SIZE="1" v-if="index < innerData.length - 1"/>-->
+            </div>
           </div>
-        </div>
+          <!--<div class="col-md-12">-->
+            <!--<el-button class="select-primary mb-3" type="warning" icon="el-icon-plus" round @click="newData()">-->
+            <!--添加新属性-->
+            <!--</el-button>-->
+          <!--</div>-->
+        <!--</div>-->
       </card>
     </div>
   </div>
 </template>
 
 <script>
-import { Button } from 'element-ui'
+import { Button, Row, Message } from 'element-ui'
 export default {
   name: 'JsonObjectEditor',
   components: {
-    [Button.name]: Button
+    [Button.name]: Button,
+    [Row.name]: Row
   },
   props: {
     editData: {
@@ -38,19 +41,23 @@ export default {
     columnName: {
       type: String,
       validator: value => value
+    },
+    placeholderLabel: {
+      type: String,
+      default: '属性'
     }
   },
   data () {
     return {
-      innerData: this.editData ? JSON.parse(this.editData) : [{
-        name: '',
-        value: ''
-      }]
+      innerData: this.editData ? JSON.parse(this.editData) : []
     }
   },
   methods: {
-    getPlaceholder (item, index) {
-      return item.name ? `请输入${item.name}` : `请输入属性${index + 1}`
+    getPlaceholderName (item, index) {
+      return `请输入${this.placeholderLabel}名${index + 1}`
+    },
+    getPlaceholderValue (item, index) {
+      return item.name ? `请输入${item.name}` : `请输入${this.placeholderLabel}值${index + 1}`
     },
     newData () {
       this.innerData.push({
@@ -60,10 +67,47 @@ export default {
     },
     deleteData (index) {
       this.innerData.splice(index, 1)
-      this.inputComplete()
     },
-    inputComplete () {
-      this.$emit('update-object', JSON.stringify(this.innerData), this.columnName)
+    saveData () {
+      if (this.checkData()) {
+        this.$emit('update-object', JSON.stringify(this.innerData), this.columnName)
+        return true
+      } else {
+        return false
+      }
+    },
+    cancelData () {
+      this.innerData = this.editData ? JSON.parse(this.editData) : [{
+        name: '',
+        value: ''
+      }]
+      return true
+    },
+    checkData () {
+      for (let i = 0; i < this.innerData.length; i++) {
+        if (this.innerData[i].name.trim() === '') {
+          Message({
+            message: `第${i + 1}条数据的${this.placeholderLabel}名为空`,
+            type: 'error'
+          })
+          return false
+        } else if (this.innerData[i].value.trim() === '') {
+          Message({
+            message: `第${i + 1}条数据的${this.placeholderLabel}值为空`,
+            type: 'error'
+          })
+          return false
+        }
+      }
+      return true
+    }
+  },
+  mounted () {
+    if (this.innerData.length === 0) {
+      this.innerData.push({
+        name: '',
+        value: ''
+      })
     }
   }
 }

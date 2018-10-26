@@ -24765,3 +24765,7 @@ a.social-count.no-count:before {
 .el-loading-spinner .path {
   stroke: #66615b!important
 }
+
+.line-in-editor {
+  margin-bottom: 0!important;
+}
