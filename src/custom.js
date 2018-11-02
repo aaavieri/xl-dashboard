@@ -15,6 +15,7 @@ import 'src/assets/js/love'
 import DictionaryPlugin from './components/DictionaryPlugin'
 import HttpPlugin from './components/HttpPlugin'
 import MsgAlertPlugin from './components/MsgAlertPlugin'
+import TableDragPlugin from './components/TableDragPlugin'
 import { Loading } from 'element-ui'
 
 // plugin setup
@@ -23,6 +24,7 @@ Vue.use(DashboardPlugin)
 Vue.use(DictionaryPlugin)
 Vue.use(HttpPlugin)
 Vue.use(MsgAlertPlugin)
+Vue.use(TableDragPlugin)
 Vue.use(Loading)
 
 // configure router

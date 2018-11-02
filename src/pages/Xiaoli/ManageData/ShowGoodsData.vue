@@ -179,7 +179,7 @@
       [PictureViewer.name]: PictureViewer,
       [SpanInfoViewer.name]: SpanInfoViewer
     },
-    name: 'EditGoodsData',
+    name: 'ShowGoodsData',
     computed: {
       /***
        * Returns a page from the searched data or the whole data. Search is performed in the watch section below
@@ -195,7 +195,8 @@
         return this.pagination.perPage * (this.pagination.currentPage - 1)
       },
       total () {
-        return this.searchedData.length > 0 ? this.searchedData.length : this.tableData.length;
+        let searchedData = this.tableData.filter(row => row.visible)
+        return searchedData.length > 0 ? searchedData.length : this.tableData.length;
       },
       dataTypeName() {
         return '商城商品'
@@ -214,8 +215,8 @@
         tableColumns: [],
         spanColumns: [],
         tableData: [],
-        originTableData: [],
-        searchedData: [],
+        // originTableData: [],
+        // searchedData: [],
         fuseSearch: null,
         contentStyle: {
           width: '100%'
@@ -314,11 +315,12 @@
         })
       },
       queriedData () {
-        let result = this.tableData;
-        if(this.searchedData.length > 0){
-          result = this.searchedData;
-        }
-        return result.slice(this.from, this.to)
+        // let result = this.tableData;
+        // if(this.searchedData.length > 0){
+        //   result = this.searchedData;
+        // }
+        // result = result.slice(this.from, this.to)
+        return this.tableData.filter(row => row.visible).slice(this.from, this.to)
       },
       init() {
         this.getData()
@@ -361,13 +363,20 @@
         })
       },
       initTableData(data) {
-        this.tableData = data
+        this.tableData = data.map(row => {
+          row.visible = true
+          return row
+        })
         this.fuseSearch = new Fuse(this.tableData, {keys: ['name'], threshold: 0.3})
-        let result = this.tableData
+        // let result = this.tableData
         if (this.searchQuery.trim() !== '') {
-          result = this.fuseSearch.search(this.searchQuery)
+          let result = this.fuseSearch.search(this.searchQuery)
+          let resultIds = result.map(row => row.id)
+          if (result.length > 0) {
+            this.tableData.map(row => row.visible = resultIds.indexOf(row.id) > -1)
+          }
         }
-        this.searchedData = result;
+        // this.searchedData = result;
       },
       getData() {
         let showData = this
@@ -419,11 +428,16 @@
         })
       },
       doSearch (value) {
-        let result = this.tableData;
         if (value !== '') {
-          result = this.fuseSearch.search(this.searchQuery)
+          let result = this.fuseSearch.search(this.searchQuery)
+          let resultIds = result.map(row => row.id)
+          if (result.length > 0) {
+            this.tableData.map(row => row.visible = resultIds.indexOf(row.id) > -1)
+          }
+        } else {
+          this.tableData.map(row => row.visible = true)
         }
-        this.searchedData = result
+        // this.searchedData = result
       },
       getDictionLabel(type, value) {
         return this.$dictionary.getName(this.getTableName(), type, value)
@@ -471,10 +485,6 @@
             return []
         }
       }
-      // displayPicture (file) {
-      //   this.dialogVisible = true
-      //   this.dialogImageUrl = file.url
-      // }
     },
     mounted () {
       this.checkLogin(this.init)

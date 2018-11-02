@@ -59,10 +59,12 @@ import ShowGlitch from 'src/pages/Xiaoli/ShowGlitch.vue'
 import MedicalData from 'src/pages/Xiaoli/ManageData/MedicalData'
 import HealthyData from 'src/pages/Xiaoli/ManageData/HealthyData'
 import GoodsData from 'src/pages/Xiaoli/ManageData/GoodsData'
+import DictionaryData from 'src/pages/Xiaoli/ManageData/DictionaryData'
 import ShowData from 'src/pages/Xiaoli/ManageData/ShowData'
 import EditData from 'src/pages/Xiaoli/ManageData/EditData'
 import ShowGoodsData from 'src/pages/Xiaoli/ManageData/ShowGoodsData'
 import EditGoodsData from 'src/pages/Xiaoli/ManageData/EditGoodsData'
+import ShowDictionaryData from 'src/pages/Xiaoli/ManageData/ShowDictionaryData'
 
 import PictureListEditor from 'src/pages/Dashboard/Components/PictureListEditor'
 
@@ -140,6 +142,22 @@ let editDataMenu = {
           name: 'editGoodsPictureList',
           components: {default: PictureListEditor, header: DefaultHeader},
           props: {default: true, header: false}
+        }
+      ]
+    },
+    {
+      path: 'dictionaryData',
+      name: 'DictionaryData',
+      redirect: {
+        path: '/manageData/dictionaryData/showDictionaryData',
+        params: {}
+      },
+      components: {default: DictionaryData, header: DefaultHeader},
+      children: [
+        {
+          path: 'showDictionaryData',
+          name: 'ShowDictionaryData',
+          components: {default: ShowDictionaryData, header: DefaultHeader}
         }
       ]
     }

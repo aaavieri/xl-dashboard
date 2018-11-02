@@ -129,7 +129,10 @@ const Dictionary = {
       return ''
     }
   },
-  clear() {
+  getAllData () {
+    return Object.assign({}, this.dictData)
+  },
+  clear () {
     this.dictData = {}
     this.inited = false
   }
