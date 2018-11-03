@@ -24,10 +24,10 @@ const Dictionary = {
     }
     return this.dictData[key]
   },
-  generateNewItem (tableName, type, name, dataType, callback) {
-    var underLineType = this.humpToUnderLine(type)
-    var categoryName = `${tableName}-${underLineType}`
-    var itemList = this.getItemList(categoryName)
+  generateNewItemWithoutSave (tableName, type, name) {
+    let underLineType = this.humpToUnderLine(type)
+    let categoryName = `${tableName}-${underLineType}`
+    let itemList = this.getItemList(categoryName)
     if (itemList.findIndex((item) => item.name === name.trim()) > -1) {
       swal({
         title: '添加字典数据失败!',
@@ -39,11 +39,11 @@ const Dictionary = {
       })
       return
     }
-    var value = 1
+    let value = 1
     if (type === 'typeId') {
       let temp = pinyinUtil.getFirstLetter(name, false)
       value = temp.charAt(0)
-      var i = 1
+      let i = 1
       while (i < temp.length && itemList.findIndex((item) => item.value === value + temp.charAt(i)) > -1) {
         i++
       }
@@ -65,14 +65,24 @@ const Dictionary = {
             confirmButtonText: 'OK',
             buttonsStyling: false
           })
-          return
+          return {}
         }
       }
     } else {
       if (itemList.length > 0) {
-        value = itemList[itemList.length - 1].value + 1
+        let tempList = [...itemList]
+        tempList.sort((item1, item2) => item1.value - item2.value)
+        value = tempList[tempList.length - 1].value + 1
       }
     }
+    return {value, name, categoryName, underLineType}
+  },
+  generateNewItem (tableName, type, name, dataType, callback) {
+    let {value, categoryName, underLineType} = this.generateNewItemWithoutSave(tableName, type, name)
+    if (!categoryName) {
+      return
+    }
+    let itemList = this.getItemList(categoryName)
     this.http.post(`/api/addDictionary/${dataType}/${underLineType}/${value}`, {name}).then(response => {
       if (response.data.success) {
         itemList.push({
@@ -116,6 +126,14 @@ const Dictionary = {
       } else {
         return word
       }
+    }).join('')
+  },
+  underLineToHump (str) {
+    return str.split('_').map(function (word, index) {
+      if (index === 0) return word
+      return word.split('').map(function (char, charIndex) {
+        return charIndex === 0 ? char.toLocaleUpperCase() : char
+      }).join('')
     }).join('')
   },
   getName (tableName, type, value) {

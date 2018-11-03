@@ -1,5 +1,5 @@
 <template>
-  <div class="row" @keyup.alt.65="addData()" @keyup.alt.68="deleteSurplusPictures()">
+  <div class="row" @keyup.alt.78="addData()" @keyup.alt.68="deleteSurplusPictures()">
     <div class="col-12">
       <card card-body-classes="table-full-width" no-footer-line>
         <h4 slot="header" class="card-title">{{dataTypeName}}数据一览</h4>
@@ -24,7 +24,7 @@
                 <!--新增-->
               <!--</n-button>-->
               <el-button class="select-primary mb-3 addButton" type="primary" icon="el-icon-plus" round @click="addData()">
-                新增(A)
+                新增(N)
               </el-button>
               <el-button class="select-primary mb-3 addButton" type="warning" icon="el-icon-delete" round @click="deleteSurplusPictures()">
                 删除无用图片(D)

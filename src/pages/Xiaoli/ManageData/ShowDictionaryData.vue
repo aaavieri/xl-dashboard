@@ -1,5 +1,5 @@
 <template>
-  <div class="row" @keyup.alt.65="addData()" @keyup.alt.68="deleteSurplusPictures()">
+  <div class="row" @keyup.alt.78="addData()" @keyup.alt.83="saveData()">
     <div class="col-12">
       <card card-body-classes="table-full-width" no-footer-line>
         <h4 slot="header" class="card-title">{{dataTypeName}}数据一览</h4>
@@ -44,11 +44,17 @@
                       :data="queriedLeftData">
               <el-table-column minWidth="150"
                                label="数据源">
-                <span slot-scope="props">{{ props.row.tableComment }}</span>
+                <template slot-scope="props">
+                  <span>{{ props.row.tableComment }}</span>
+                  <span v-if="props.row.changed" class="row-changed">modified!</span>
+                </template>
               </el-table-column>
               <el-table-column minWidth="150"
                                label="字典名">
-                <span slot-scope="props">{{ props.row.columnComment }}</span>
+                <template slot-scope="props">
+                  <span>{{ props.row.columnComment }}</span>
+                  <span v-if="props.row.changed" class="row-changed">modified!</span>
+                </template>
               </el-table-column>
             </el-table>
 
@@ -61,19 +67,19 @@
                           :total="total">
             </n-pagination>
           </div>
-          <div class="col-6" style="display: inline; float:right;">
+          <div class="col-7" style="display: inline; float:right;">
             <div class="col-12 d-flex justify-content-center justify-content-sm-between flex-wrap">
               <fg-input style="justify-content: flex-end; width: 100%">
-                <el-button class="select-primary mb-3 addButton" type="primary" icon="el-icon-plus" round >
-                  新增(A)
+                <el-button class="select-primary mb-3 addButton" type="primary" icon="el-icon-plus" round @click="addData()">
+                  新增(N)
                 </el-button>
-                <el-dropdown trigger="click">
+                <el-dropdown trigger="click" @command="handleRecover">
                   <el-button type="warning" class="select-primary mb-3 addButton" icon="el-icon-back" round>
                     恢复字典<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>恢复当前字典</el-dropdown-item>
-                    <el-dropdown-item>恢复全部字典</el-dropdown-item>
+                    <el-dropdown-item :command="1">恢复当前字典</el-dropdown-item>
+                    <el-dropdown-item :command="2">恢复全部字典</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </fg-input>
@@ -85,27 +91,55 @@
                       id="rightTable"
                       :border="true"
                       :data="rightTableData">
-              <el-table-column minWidth="150"
+              <el-table-column minWidth="70"
+                               label="字典顺序">
+                <template slot-scope="props">
+                  <span :class="{'row-deleted': props.row.delFlag, 'row-added': !props.row.isInDb}">{{ props.row.displayOrder }}</span>
+                  <span v-if="!props.row.isInDb" class="row-added2">new!</span>
+                  <span v-else-if="props.row.displayOrder !== props.row.originalDisplayOrder" class="row-changed2">changed!</span>
+                </template>
+              </el-table-column>
+              <el-table-column minWidth="100"
                                label="字典选项实际值">
-                <span slot-scope="props">{{ props.row.value }}</span>
+                <template slot-scope="props">
+                  <span :class="{'row-deleted': props.row.delFlag, 'row-added': !props.row.isInDb}">{{ props.row.value }}</span>
+                  <span v-if="!props.row.isInDb" class="row-added2">new!</span>
+                </template>
               </el-table-column>
               <el-table-column minWidth="150"
+                               prop="name"
                                label="字典选项表示值">
-                <span slot-scope="props">{{ props.row.name }}</span>
+                <template slot-scope="props">
+                  <template v-if="props.row.editing === true">
+                    <el-input :ref="'editInput' + props.row.value" class="edit-input" v-model="props.row.name"/>
+                    <!--<i class="el-icon-check edit-position" @click="editComplete(props.row)"></i>-->
+                    <el-button type="success" icon="el-icon-check" size="mini" class="edit-button" circle @click.native="editComplete(props.row)"/>
+                  </template>
+                  <template v-else>
+                    <span :class="{'row-deleted': props.row.delFlag, 'row-added': !props.row.isInDb}">{{ props.row.name }}</span>
+                    <span v-if="!props.row.isInDb" class="row-added2">new!</span>
+                    <span v-else-if="props.row.name !== props.row.originalName" class="row-renamed">renamed!</span>
+                    <!--<i class="el-icon-edit edit-position" @click="editStart(props.row)"></i>-->
+                    <template v-if="props.row.delFlag">
+                      <el-button type="warning" icon="el-icon-back" size="mini" class="restore-button" circle @click.native="restoreItem(props.row)"/>
+                    </template>
+                    <template v-else>
+                      <el-button type="danger" icon="el-icon-delete" size="mini" class="delete-button" circle @click.native="deleteItem(props.row, props.$index)"/>
+                      <el-button type="primary" icon="el-icon-edit" size="mini" class="edit-button" circle @click.native="editStart(props.row)"/>
+                    </template>
+                  </template>
+                </template>
               </el-table-column>
             </el-table>
           </div>
         </div>
         <div slot="footer" class="col-12 d-flex justify-content-center justify-content-sm-between flex-wrap">
-          <div class="col-5" style="float: left;">
-            <!--<div class="">-->
-              <!--<p class="card-category">显示第{{from + 1}}-{{to}}条数据，共{{total}}条数据</p>-->
-            <!--</div>-->
-            <!--<n-pagination class="pagination-no-border"-->
-                          <!--v-model="pagination.currentPage"-->
-                          <!--:per-page="pagination.perPage"-->
-                          <!--:total="total">-->
-            <!--</n-pagination>-->
+          <div class="col-10">
+          </div>
+          <div class="col-2">
+            <el-button class="select-primary mb-3 addButton" type="success" icon="el-icon-message" round @click="saveData()">
+              保存(S)
+            </el-button>
           </div>
         </div>
       </card>
@@ -185,14 +219,27 @@
     },
     methods: {
       init () {
+        let page =this
         let dictionaryData = this.$dictionary.getAllData()
         this.leftTableData = Object.keys(dictionaryData).map(key => {
           let [tableName, columnName] = key.split('-')
-          let dataList = dictionaryData[key]
+          let needInitDisplayOrder = false
+          let dataList = dictionaryData[key].map((data, index) => {
+            page.$set(data, 'editing', false)
+            page.$set(data, 'originalName', data.name)
+            if (data.displayOrder === 0) {
+              needInitDisplayOrder = true
+            }
+            data.displayOrder = index + 1
+            page.$set(data, 'originalDisplayOrder', index + 1)
+            page.$set(data, 'isInDb', true)
+            return data
+          })
           return {
             tableName,
             columnName,
             key,
+            needInitDisplayOrder,
             changed: false,
             tableComment: dataList[0].tableComment || tableName,
             columnComment: dataList[0].columnComment || columnName,
@@ -209,7 +256,6 @@
             return tableSortResult
           }
         })
-        let page = this
         this.tableSelectList.push({
           tableName: '',
           tableComment: '所有数据'
@@ -237,10 +283,9 @@
           let result = this.fuseSearch.search(this.searchQuery)
           searchResultKeys = result.map(row => row.key)
         }
-        let page = this
         this.leftTableData.map(row => {
           let searchMatch = searchResultKeys.length === 0 || searchResultKeys.indexOf(row.key) > -1
-          let selectMatch = page.tableSelectValue === '' || page.tableSelectValue === row.tableName
+          let selectMatch = this.tableSelectValue === '' || this.tableSelectValue === row.tableName
           row.visible = searchMatch && selectMatch
         })
       },
@@ -260,18 +305,166 @@
           return rowKey
         }
       },
-      dragRightTableFinish (_, dropRow) {
-        this.rightTableData.map((rightRow, index) => rightRow.displayOrder = index + 1 && console.log(`after row:${rightRow.value}`))
-        this.leftTableData.find(leftRow => leftRow.key === dropRow.categoryName).changed = true
+      dragRightTableFinish () {
+        this.rightTableData.map((rightRow, index) => rightRow.displayOrder = index + 1)
+        this.currentRow.changed = this.getChangeDataList(this.currentRow).length > 0
       },
       initDrag () {
         this.$tableDrag.bindDrag(Array.prototype.slice.call(document.querySelectorAll('#rightTable tr.el-table__row')),
           this.rightTableData, 'value',
           {
-            getRowIdFunc: this.getRowKeyFunc
-            // onDrop: this.dragRightTableFinish
+            getRowIdFunc: this.getRowKeyFunc,
+            onDrop: this.dragRightTableFinish
           }
         )
+      },
+      handleRecover (command) {
+        if (command === 1) {
+          this.recoverNowDictionary()
+        } else if (command === 2) {
+          this.recoverAllDictionary()
+        }
+      },
+      recoverNowDictionary () {
+        this.recoverOneDictionary(this.currentRow)
+        this.rightTableData = this.currentRow.dataList
+      },
+      recoverAllDictionary () {
+        this.leftTableData.map(item => {
+          this.recoverOneDictionary(item)
+        })
+        this.rightTableData = this.currentRow.dataList
+      },
+      recoverOneDictionary (leftRow) {
+        leftRow.dataList = this.$dictionary.getItemList(leftRow.key).map(data => {
+          data.editing = false
+          data.name = data.originalName
+          return data
+        }).filter(item => item.isInDb)
+        leftRow.changed = false
+      },
+      editStart (row) {
+        row.editing = true
+        this.$nextTick(() => {
+          let editInputs = this.$refs[`editInput${row.value}`]
+          editInputs.focus()
+        })
+      },
+      editComplete (row) {
+        if (row.name.trim() === '') {
+          let page = this
+          this.$msgAlert.showSimpleErrorMsg('请输入选项').then(() => {
+            setTimeout(() => {
+              page.$refs[`editInput${row.value}`].focus()
+            }, 300)
+          })
+          return
+        }
+        row.editing = false
+        let type = this.$dictionary.underLineToHump(row.columnName)
+        if (type === 'typeId' && !row.isInDb) {
+          let {value} = this.$dictionary.generateNewItemWithoutSave(row.tableName, type, row.name)
+          row.value = value
+        }
+        this.currentRow.changed = this.getChangeDataList(this.currentRow).length > 0
+      },
+      addData () {
+        let newItem = Object.assign({}, this.rightTableData[0])
+        newItem.delFlag = false
+        newItem.editing = true
+        newItem.isInDb = false
+        newItem.displayOrder = this.rightTableData.length + 1
+        let type = this.$dictionary.underLineToHump(newItem.columnName)
+        if (type !== 'typeId') {
+          newItem.value = Math.max(...(this.rightTableData.map(item => item.value))) + 1
+        } else {
+          newItem.value = ''
+        }
+        newItem.name = ''
+        this.rightTableData.push(newItem)
+        this.currentRow.changed = this.getChangeDataList(this.currentRow).length > 0
+        this.$nextTick(() => {
+          let editInputs = this.$refs[`editInput${newItem.value}`]
+          editInputs.focus()
+        })
+      },
+      deleteItem (row, index) {
+        row.delFlag = true
+        if (!row.isInDb) {
+          this.rightTableData.splice(index, 1)
+        }
+        this.currentRow.changed = this.getChangeDataList(this.currentRow).length > 0
+      },
+      restoreItem (row) {
+        row.delFlag = false
+      },
+      getChangeDataList (leftRow) {
+        return leftRow.dataList.filter(rightRow => {
+          return (rightRow.name !== rightRow.originalName)
+          || (rightRow.displayOrder !== rightRow.originalDisplayOrder)
+          || (rightRow.delFlag)
+          || (!rightRow.isInDb)
+        })
+      },
+      saveData () {
+        let validInput = false
+        let page = this
+        let needSaveData = this.leftTableData.filter(row => row.changed).map(row => {
+          let editingItem = row.dataList.find(item => item.editing)
+          if (!validInput && editingItem) {
+            validInput = true
+            this.$msgAlert.showSimpleErrorMsg('尚有未完成的输入，请输入后再保存').then(() => {
+              if (page.currentRow.key !== row.key) {
+                page.$refs.leftTable.setCurrentRow(row)
+              }
+              setTimeout(() => {
+                page.$refs[`editInput${editingItem.value}`].focus()
+              }, 300)
+            })
+          }
+          if (row.needInitDisplayOrder) {
+            row.updateDataList = row.dataList
+          } else {
+            row.updateDataList = this.getChangeDataList(row)
+          }
+          return row
+        })
+        if (validInput || needSaveData.length === 0) {
+          return
+        }
+        this.$http.post('/api/updateDictionary', {needSaveData}).then(response => {
+          if (!response.data.success) {
+            page.$msgAlert.showSimpleErrorMsg(response.data.errMsg)
+          } else {
+            page.$msgAlert.showSimpleSuccessMsg('保存成功')
+            page.afterSave(needSaveData)
+          }
+        })
+      },
+      afterSave (savedData) {
+        savedData.map(leftItem => {
+          leftItem.changed = false
+          leftItem.needInitDisplayOrder = false
+          let dictionaryList = this.$dictionary.getItemList(leftItem.key)
+          leftItem.updateDataList.map(rightItem => {
+            rightItem.originalDisplayOrder = rightItem.displayOrder
+            rightItem.originalName = rightItem.name
+            if (rightItem.delFlag) {
+              let index = leftItem.dataList.find(item => item.value === rightItem.value)
+              leftItem.dataList.splice(index, 1)
+              index = dictionaryList.find(item => item.value === rightItem.value)
+              dictionaryList.splice(index, 1)
+            }
+            if (!rightItem.isInDb) {
+              rightItem.isInDb = true
+              dictionaryList.push(rightItem)
+            }
+          })
+          dictionaryList.sort((item1, item2) => {
+            let displaySort = item1.displayOrder - item2.displayOrder
+            return displaySort !== 0 ? displaySort : (item1.value - item2.value)
+          })
+        })
       },
       checkLogin (callback) {
         let app = this
@@ -324,7 +517,57 @@
     margin-left: 10px;
   }
   .row-changed {
-    background-color: #dd6161!important;
+     color: #dd6161;
+     font-size: 1px;
+     font-style:italic;
+     position:absolute;
+     right:5px;
+     bottom:0px;
+  }
+  .row-deleted {
+    color: #dd6161;
+    text-decoration: line-through
+  }
+  .row-added {
+    color: #1beb11;
+  }
+  .row-added2 {
+    color: #dd6161;
+    font-size: 1px;
+    font-style:italic;
+    position:absolute;
+    margin-left: 5px;
+    top:0px;
+  }
+  .row-changed2 {
+    color: #dd6161;
+    font-size: 1px;
+    font-style:italic;
+    position:absolute;
+    margin-left: 5px;
+    top:0px;
+  }
+  .row-renamed {
+    color: #dd6161;
+    font-size: 1px;
+    font-style:italic;
+    position:absolute;
+    margin-left: 5px;
+    top:0px;
+  }
+  .edit-button {
+    float: right;
+  }
+  .restore-button {
+    float: right;
+  }
+  .delete-button {
+    float: right;
+    position: relative;
+    left: 5px;
+  }
+  .edit-input {
+    width: calc(100% - 70px);
   }
 </style>
 

@@ -2,7 +2,7 @@ import swal from 'sweetalert2'
 
 let msgAlert = {
   showSimpleSuccessMsg: (msg) => {
-    swal({
+    return swal({
       title: '操作成功!',
       text: msg,
       type: 'success',
@@ -12,7 +12,7 @@ let msgAlert = {
     })
   },
   showSimpleErrorMsg: (msg) => {
-    swal({
+    return swal({
       title: '操作失败!',
       text: msg,
       type: 'error',
