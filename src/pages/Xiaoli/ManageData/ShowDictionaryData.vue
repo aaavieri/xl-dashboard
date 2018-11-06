@@ -46,14 +46,14 @@
                                label="数据源">
                 <template slot-scope="props">
                   <span>{{ props.row.tableComment }}</span>
-                  <span v-if="props.row.changed" class="row-changed">modified!</span>
+                  <strong v-if="props.row.changed" class="row-changed">modified!</strong>
                 </template>
               </el-table-column>
               <el-table-column minWidth="150"
                                label="字典名">
                 <template slot-scope="props">
                   <span>{{ props.row.columnComment }}</span>
-                  <span v-if="props.row.changed" class="row-changed">modified!</span>
+                  <strong v-if="props.row.changed" class="row-changed">modified!</strong>
                 </template>
               </el-table-column>
             </el-table>
@@ -94,16 +94,16 @@
               <el-table-column minWidth="70"
                                label="字典顺序">
                 <template slot-scope="props">
-                  <span :class="{'row-deleted': props.row.delFlag, 'row-added': !props.row.isInDb}">{{ props.row.displayOrder }}</span>
-                  <span v-if="!props.row.isInDb" class="row-added2">new!</span>
-                  <span v-else-if="props.row.displayOrder !== props.row.originalDisplayOrder" class="row-changed2">changed!</span>
+                  <span :class="{'row-deleted': props.row.delFlag, 'row-added': !props.row.isInDb}">{{ props.row.editDisplayOrder }}</span>
+                  <strong v-if="!props.row.isInDb" class="row-added2">new!</strong>
+                  <strong v-else-if="props.row.displayOrder !== props.row.editDisplayOrder" class="row-changed2">changed!</strong>
                 </template>
               </el-table-column>
               <el-table-column minWidth="100"
                                label="字典选项实际值">
                 <template slot-scope="props">
                   <span :class="{'row-deleted': props.row.delFlag, 'row-added': !props.row.isInDb}">{{ props.row.value }}</span>
-                  <span v-if="!props.row.isInDb" class="row-added2">new!</span>
+                  <strong v-if="!props.row.isInDb" class="row-added2">new!</strong>
                 </template>
               </el-table-column>
               <el-table-column minWidth="150"
@@ -111,14 +111,14 @@
                                label="字典选项表示值">
                 <template slot-scope="props">
                   <template v-if="props.row.editing === true">
-                    <el-input :ref="'editInput' + props.row.value" class="edit-input" v-model="props.row.name"/>
+                    <el-input :ref="'editInput' + props.row.value" class="edit-input" v-model="props.row.editName"/>
                     <!--<i class="el-icon-check edit-position" @click="editComplete(props.row)"></i>-->
                     <el-button type="success" icon="el-icon-check" size="mini" class="edit-button" circle @click.native="editComplete(props.row)"/>
                   </template>
                   <template v-else>
-                    <span :class="{'row-deleted': props.row.delFlag, 'row-added': !props.row.isInDb}">{{ props.row.name }}</span>
-                    <span v-if="!props.row.isInDb" class="row-added2">new!</span>
-                    <span v-else-if="props.row.name !== props.row.originalName" class="row-renamed">renamed!</span>
+                    <span :class="{'row-deleted': props.row.delFlag, 'row-added': !props.row.isInDb}">{{ props.row.editName }}</span>
+                    <strong v-if="!props.row.isInDb" class="row-added2">new!</strong>
+                    <strong v-else-if="props.row.name !== props.row.editName" class="row-renamed">renamed!</strong>
                     <!--<i class="el-icon-edit edit-position" @click="editStart(props.row)"></i>-->
                     <template v-if="props.row.delFlag">
                       <el-button type="warning" icon="el-icon-back" size="mini" class="restore-button" circle @click.native="restoreItem(props.row)"/>
@@ -144,16 +144,63 @@
         </div>
       </card>
     </div>
+    <notice-plugin title="使用说明" :width="500" :open="true">
+      <div class="readme-div">
+        <div>
+          <span>1、左侧选择字典，右侧即显示该字典的所有选项。</span>
+        </div>
+        <div>
+          <span>2、【拖动】右侧选项，即可调整选项顺序，调整后在【字典顺序】栏显示</span>
+          <strong class="red" >changed!</strong>
+          <span> 标签</span>
+        </div>
+        <div>
+          <span>3、点击【新增】按钮，输入完成点输入框右侧的【钩】按钮，完成后该行显示</span>
+          <strong class="green">绿色</strong>
+          <span> 并添加</span>
+          <strong class="green">new!</strong>
+          <span> 标签</span>
+        </div>
+        <div>
+          <span>4、点击右侧任意行的【笔】按钮，输入完成点输入框右侧的【钩】按钮修改显示名，完成后在【字典选项表示值】栏显示</span>
+          <strong class="red">renamed!</strong>
+          <span> 标签</span>
+        </div>
+        <div>
+          <span>5、点击右侧任意行的【垃圾箱】按钮，即删除该行，该栏显示为</span>
+          <strong class="red">红色</strong>
+          <span> 并添加</span>
+          <strong class="red">删除线</strong>
+        </div>
+        <div>
+          <span>6、若执行【2-5】中任意操作，左侧表格中对应选中项会显示</span>
+          <strong class="red">modified!</strong>
+          <span> 标签</span>
+        </div>
+        <div>
+          <span>7、点击右下角【保存】按钮，则保存所有更改，否则不会保存。</span>
+        </div>
+        <div>
+          <span>8、点击【恢复数据】按钮，可选择是恢复</span>
+          <strong class="red">当前字典</strong>
+          <span> 的数据或</span>
+          <strong class="red">所有字典</strong>
+          <span> 数据。</span>
+        </div>
+      </div>
+    </notice-plugin>
   </div>
 </template>
 <script>
-  import {Table, TableColumn, Select, Option, Form, FormItem, Button, Dropdown, DropdownMenu, DropdownItem} from 'element-ui'
+  import {Table, TableColumn, Select, Option, Form, FormItem, Button, Dropdown, DropdownMenu, DropdownItem, Dialog} from 'element-ui'
+  import NoticePlugin from '../../Dashboard/Components/NoticePlugin'
   import {Pagination as NPagination} from 'src/components'
   import Fuse from 'fuse.js'
   import swal from 'sweetalert2'
   const NUMBER_REG = new RegExp('[1-9][0-9]*')
   export default {
     components: {
+      NoticePlugin,
       NPagination,
       [Select.name]: Select,
       [Option.name]: Option,
@@ -164,7 +211,9 @@
       [Button.name]: Button,
       [Dropdown.name]: Dropdown,
       [DropdownMenu.name]: DropdownMenu,
-      [DropdownItem.name]: DropdownItem
+      [DropdownItem.name]: DropdownItem,
+      [Dialog.name]: Dialog,
+      [NoticePlugin.name]: NoticePlugin
     },
     name: 'ShowDictionaryData',
     computed: {
@@ -219,21 +268,28 @@
     },
     methods: {
       init () {
-        let page =this
         let dictionaryData = this.$dictionary.getAllData()
         this.leftTableData = Object.keys(dictionaryData).map(key => {
           let [tableName, columnName] = key.split('-')
           let needInitDisplayOrder = false
+          let {leftOrdinalPosition, leftTableComment, leftColumnComment} = {}
           let dataList = dictionaryData[key].map((data, index) => {
-            page.$set(data, 'editing', false)
-            page.$set(data, 'originalName', data.name)
-            if (data.displayOrder === 0) {
-              needInitDisplayOrder = true
+            let {value, name, delFlag, ordinalPosition, tableComment, columnComment} = data
+            if (index === 0) {
+              leftOrdinalPosition = ordinalPosition
+              leftTableComment = tableComment
+              leftColumnComment = columnComment
             }
-            data.displayOrder = index + 1
-            page.$set(data, 'originalDisplayOrder', index + 1)
-            page.$set(data, 'isInDb', true)
-            return data
+            return {
+              editing: false,
+              name,
+              value,
+              displayOrder: index + 1,
+              delFlag,
+              editName: name,
+              editDisplayOrder: index + 1,
+              isInDb: true
+            }
           })
           return {
             tableName,
@@ -241,9 +297,9 @@
             key,
             needInitDisplayOrder,
             changed: false,
-            tableComment: dataList[0].tableComment || tableName,
-            columnComment: dataList[0].columnComment || columnName,
-            ordinalPosition: dataList[0].ordinalPosition,
+            tableComment: leftTableComment || tableName,
+            columnComment: leftColumnComment || columnName,
+            ordinalPosition: leftOrdinalPosition || 1,
             dataList,
             visible: true
           }
@@ -261,8 +317,8 @@
           tableComment: '所有数据'
         })
         this.leftTableData.map(row => {
-          if (!page.tableSelectList.find(item => item.tableName === row.tableName)) {
-            page.tableSelectList.push({
+          if (!this.tableSelectList.find(item => item.tableName === row.tableName)) {
+            this.tableSelectList.push({
               tableName: row.tableName,
               tableComment: row.tableComment
             })
@@ -274,7 +330,8 @@
         this.currentRow = currentRow
         if (currentRow) {
           this.rightTableData = currentRow.dataList
-          setTimeout(this.initDrag, 300)
+          // setTimeout(this.initDrag, 300)
+          this.$nextTick(this.initDrag)
         }
       },
       doSearch () {
@@ -306,7 +363,7 @@
         }
       },
       dragRightTableFinish () {
-        this.rightTableData.map((rightRow, index) => rightRow.displayOrder = index + 1)
+        this.rightTableData.map((rightRow, index) => rightRow.editDisplayOrder = index + 1)
         this.currentRow.changed = this.getChangeDataList(this.currentRow).length > 0
       },
       initDrag () {
@@ -337,10 +394,18 @@
       },
       recoverOneDictionary (leftRow) {
         leftRow.dataList = this.$dictionary.getItemList(leftRow.key).map(data => {
-          data.editing = false
-          data.name = data.originalName
-          return data
-        }).filter(item => item.isInDb)
+          let {value, name, delFlag} = data
+          return {
+            editing: false,
+            name,
+            value,
+            displayOrder: index + 1,
+            delFlag,
+            editName: name,
+            editDisplayOrder: index + 1,
+            isInDb: true
+          }
+        })
         leftRow.changed = false
       },
       editStart (row) {
@@ -351,7 +416,7 @@
         })
       },
       editComplete (row) {
-        if (row.name.trim() === '') {
+        if (row.editName.trim() === '') {
           let page = this
           this.$msgAlert.showSimpleErrorMsg('请输入选项').then(() => {
             setTimeout(() => {
@@ -361,26 +426,31 @@
           return
         }
         row.editing = false
-        let type = this.$dictionary.underLineToHump(row.columnName)
+        let type = this.$dictionary.underLineToHump(this.currentRow.columnName)
         if (type === 'typeId' && !row.isInDb) {
-          let {value} = this.$dictionary.generateNewItemWithoutSave(row.tableName, type, row.name)
+          let {value} = this.$dictionary.generateNewItemWithoutSave(this.currentRow.tableName, type, row.editName)
           row.value = value
         }
         this.currentRow.changed = this.getChangeDataList(this.currentRow).length > 0
+        // setTimeout(this.initDrag, 300)
+        this.$nextTick(this.initDrag)
       },
       addData () {
-        let newItem = Object.assign({}, this.rightTableData[0])
-        newItem.delFlag = false
-        newItem.editing = true
-        newItem.isInDb = false
-        newItem.displayOrder = this.rightTableData.length + 1
-        let type = this.$dictionary.underLineToHump(newItem.columnName)
+        let newItem = {
+          editing: true,
+          name: '',
+          displayOrder: this.rightTableData.length + 1,
+          delFlag: false,
+          editName: '',
+          editDisplayOrder: this.rightTableData.length + 1,
+          isInDb: false
+        }
+        let type = this.$dictionary.underLineToHump(this.currentRow.columnName)
         if (type !== 'typeId') {
           newItem.value = Math.max(...(this.rightTableData.map(item => item.value))) + 1
         } else {
           newItem.value = ''
         }
-        newItem.name = ''
         this.rightTableData.push(newItem)
         this.currentRow.changed = this.getChangeDataList(this.currentRow).length > 0
         this.$nextTick(() => {
@@ -400,8 +470,8 @@
       },
       getChangeDataList (leftRow) {
         return leftRow.dataList.filter(rightRow => {
-          return (rightRow.name !== rightRow.originalName)
-          || (rightRow.displayOrder !== rightRow.originalDisplayOrder)
+          return (rightRow.name !== rightRow.editName)
+          || (rightRow.displayOrder !== rightRow.editDisplayOrder)
           || (rightRow.delFlag)
           || (!rightRow.isInDb)
         })
@@ -409,7 +479,8 @@
       saveData () {
         let validInput = false
         let page = this
-        let needSaveData = this.leftTableData.filter(row => row.changed).map(row => {
+        let needSaveData = this.leftTableData.filter(row => row.changed)
+        needSaveData.map(row => {
           let editingItem = row.dataList.find(item => item.editing)
           if (!validInput && editingItem) {
             validInput = true
@@ -427,7 +498,6 @@
           } else {
             row.updateDataList = this.getChangeDataList(row)
           }
-          return row
         })
         if (validInput || needSaveData.length === 0) {
           return
@@ -447,19 +517,35 @@
           leftItem.needInitDisplayOrder = false
           let dictionaryList = this.$dictionary.getItemList(leftItem.key)
           leftItem.updateDataList.map(rightItem => {
-            rightItem.originalDisplayOrder = rightItem.displayOrder
-            rightItem.originalName = rightItem.name
+            rightItem.displayOrder = rightItem.editDisplayOrder
+            rightItem.name = rightItem.editName
             if (rightItem.delFlag) {
-              let index = leftItem.dataList.find(item => item.value === rightItem.value)
+              let index = leftItem.dataList.findIndex(item => item.value === rightItem.value)
+              console.log(leftItem.dataList)
               leftItem.dataList.splice(index, 1)
-              index = dictionaryList.find(item => item.value === rightItem.value)
+              console.log(leftItem.dataList)
+              index = dictionaryList.findIndex(item => item.value === rightItem.value)
               dictionaryList.splice(index, 1)
-            }
-            if (!rightItem.isInDb) {
+            } else if (!rightItem.isInDb) {
               rightItem.isInDb = true
-              dictionaryList.push(rightItem)
+              let addItem = {}
+              if (dictionaryList.length > 0) {
+                Object.assign(addItem, dictionaryList[0])
+                addItem.name = rightItem.name
+                addItem.value = rightItem.value
+                addItem.displayOrder = rightItem.displayOrder
+              } else {
+                Object.assign(addItem, leftItem)
+                Object.assign(addItem, rightItem)
+              }
+              dictionaryList.push(addItem)
+            } else {
+              let updateItem = dictionaryList.find(item => item.value === rightItem.value)
+              updateItem.name = rightItem.name
+              updateItem.displayOrder = rightItem.displayOrder
             }
           })
+          leftItem.updateDataList = []
           dictionaryList.sort((item1, item2) => {
             let displaySort = item1.displayOrder - item2.displayOrder
             return displaySort !== 0 ? displaySort : (item1.value - item2.value)
@@ -568,6 +654,24 @@
   }
   .edit-input {
     width: calc(100% - 70px);
+  }
+  .readme-div {
+    width: 100%
+  }
+  .readme-div div {
+    margin-bottom: 5px;
+  }
+
+  .readme-div strong {
+    font-style: italic;
+  }
+
+  .readme-div strong.red {
+    color: #dd6161;
+  }
+
+  .readme-div strong.green {
+    color: #1beb11;
   }
 </style>
 

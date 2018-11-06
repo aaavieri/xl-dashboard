@@ -17,6 +17,7 @@ import HttpPlugin from './components/HttpPlugin'
 import MsgAlertPlugin from './components/MsgAlertPlugin'
 import TableDragPlugin from './components/TableDragPlugin'
 import { Loading } from 'element-ui'
+import 'animate.css'
 
 // plugin setup
 Vue.use(VueRouter)
