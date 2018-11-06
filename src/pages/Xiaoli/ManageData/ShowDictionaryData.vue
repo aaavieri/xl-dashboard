@@ -137,7 +137,7 @@
           <div class="col-10">
           </div>
           <div class="col-2">
-            <el-button class="select-primary mb-3 addButton" type="success" icon="el-icon-message" round @click="saveData()">
+            <el-button class="select-primary mb-3 addButton footerButton" type="success" icon="el-icon-message" round @click="saveData()">
               保存(S)
             </el-button>
           </div>
@@ -393,7 +393,7 @@
         this.rightTableData = this.currentRow.dataList
       },
       recoverOneDictionary (leftRow) {
-        leftRow.dataList = this.$dictionary.getItemList(leftRow.key).map(data => {
+        leftRow.dataList = this.$dictionary.getItemList(leftRow.key).map((data, index) => {
           let {value, name, delFlag} = data
           return {
             editing: false,
@@ -601,6 +601,9 @@
 <style>
   .addButton {
     margin-left: 10px;
+  }
+  .footerButton {
+    margin-top: 10px;
   }
   .row-changed {
      color: #dd6161;
