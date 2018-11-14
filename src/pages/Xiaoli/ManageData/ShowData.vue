@@ -42,14 +42,22 @@
           </div>
           <el-table stripe
                     style="width: 100%;"
+                    ref="dataTable"
                     :data="queriedData()">
-            <el-table-column type="expand" fixed="left" @click="alert(1)">
+            <el-table-column type="expand" fixed="left">
               <template slot-scope="props">
                 <el-form label-position="left" inline class="demo-table-expand">
                   <el-form-item :label="column.label" v-for="column in tableColumns" :key="column.columnName" v-if="column.listDisplayPosition == 1">
                     <span v-if="column.dataType == 'dictionary'">{{ getDictionLabel(column.columnName, props.row[column.columnName])}}</span>
+                    <a v-else-if="column.dataType == 'url'" href="javascript:void(0);" @click="openPage(props.row, column.columnName)">{{ getUrlDisplay(props.row[column.columnName]) }}</a>
                     <span v-else>{{ props.row[column.columnName] }}</span>
                   </el-form-item>
+                  <el-dialog :visible.sync="iFrameDialogVisible" :append-to-body="true" ref="iFrameForUrl">
+                    <el-input placeholder="请输入内容" :value="iFramePath" disabled>
+                      <template slot="prepend">{{iFrameSchema}}</template>
+                    </el-input>
+                    <iframe width="100%" height="300" :src="iFrameUrl" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+                  </el-dialog>
                 </el-form>
                 <!--<nav class="menu menu&#45;&#45;tsula">-->
                   <!--<div class="menu__item" v-for="column in tableColumns" :key="column.columnName" v-if="column.listDisplayPosition == 1">-->
@@ -112,7 +120,7 @@
   </div>
 </template>
 <script>
-  import {Table, TableColumn, Select, Option, Form, FormItem, Button} from 'element-ui'
+  import {Table, TableColumn, Select, Option, Form, FormItem, Button, Dialog} from 'element-ui'
   import {Pagination as NPagination} from 'src/components'
   import axios from 'axios'
   // import users from './users'
@@ -129,7 +137,8 @@
       [TableColumn.name]: TableColumn,
       [Form.name]: Form,
       [FormItem.name]: FormItem,
-      [Button.name]: Button
+      [Button.name]: Button,
+      [Dialog.name]: Dialog
     },
     name: 'ShowData',
     computed: {
@@ -156,7 +165,29 @@
           default:
             return '医疗版'
         }
-      }
+      },
+      iFrameSchema () {
+        if (!this.iFrameUrl) {
+          return 'http://'
+        } else if (!this.iFrameUrl.toLocaleLowerCase().startsWith('http://')) {
+          return 'http://'
+        } else if (!this.iFrameUrl.toLocaleLowerCase().startsWith('https://')) {
+          return 'https://'
+        } else {
+          return 'http://'
+        }
+      },
+      iFramePath () {
+        if (!this.iFrameUrl) {
+          return ''
+        } else if (!this.iFrameUrl.toLocaleLowerCase().startsWith('http://')) {
+          return this.iFrameUrl.substr(7)
+        } else if (!this.iFrameUrl.toLocaleLowerCase().startsWith('https://')) {
+          return this.iFrameUrl.substr(8)
+        } else {
+          return this.iFrameUrl
+        }
+      },
     },
     data () {
       return {
@@ -175,12 +206,18 @@
         fuseSearch: null,
         contentStyle: {
           width: '100%'
-        }
+        },
+        iFrameDialogVisible: false,
+        iFrameUrl: null
       }
     },
     methods: {
       addData () {
-        this.$router.push({name: 'EditMedicalData', params: {dataType: this.dataType, actionType: 1}})
+        let linkName = 'Medical'
+        if (this.dataType === 2) {
+          linkName = 'Healthy'
+        }
+        this.$router.push({name: `Edit${linkName}Data`, params: {dataType: this.dataType, actionType: 1}})
       },
       handleCopy (index, row) {
         swal({
@@ -395,6 +432,22 @@
             tableName = 't_medical'
         }
         return tableName
+      },
+      getUrlDisplay (url) {
+        if (!url) {
+          return '暂无'
+        } else if (url.length > 60) {
+          return url.substring(0, 60) + '...'
+        } else {
+          return url
+        }
+      },
+      openPage (row, urlKey) {
+        if (!row[urlKey]) {
+          return
+        }
+        this.iFrameUrl = row[urlKey]
+        this.iFrameDialogVisible = true
       }
     },
     mounted () {

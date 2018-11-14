@@ -16,7 +16,8 @@
       <i class="now-ui-icons ui-1_simple-remove"></i>
     </button>
 
-    <span v-if="icon" data-notify="icon" :class="['alert-icon', icon]"></span>
+    <!--<span v-if="icon" data-notify="icon" :class="['alert-icon', icon]"></span>-->
+    <span data-notify="icon" :class="['alert-icon', icon]"></span>
     <span data-notify="message">
       <span v-if="title" class="title"><b>{{title}}<br/></b></span>
       <span v-if="message" v-html="message"></span>

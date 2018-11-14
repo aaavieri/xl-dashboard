@@ -17,6 +17,13 @@
               <el-input ref="stringInput" v-model="item.value" v-if="item.dataType == 'string'" :disabled="!item.editable" :placeholder="getPlaceholder(item)" />
               <el-input-number v-model="item.value" v-else-if="item.dataType == 'number'" :disabled="!item.editable" :placeholder="getPlaceholder(item)"/>
               <el-input type="textarea" v-model="item.value" :autosize=true v-else-if="item.dataType == 'text'" :disabled="!item.editable" :placeholder="getPlaceholder(item)"/>
+              <!--<el-input  v-model="item.value" v-else-if="item.dataType == 'url'" :disabled="!item.editable" :placeholder="getPlaceholder(item)" >-->
+                <!--<el-select slot="prepend" @change="test(item)" value="1" placeholder="A:">-->
+                  <!--<el-option label="A:" value="1"/>-->
+                  <!--<el-option label="B:" value="2"/>-->
+                <!--</el-select>-->
+              <!--</el-input>-->
+              <el-input type="textarea" v-model="item.value" :autosize=true v-else-if="item.dataType == 'url'" :disabled="!item.editable" :placeholder="getPlaceholder(item)"/>
               <checkbox v-model="item.value" v-else-if="item.dataType == 'check'" :disabled="!item.editable" >item.label</checkbox>
               <el-select ref="select" v-model="item.value" v-else-if="item.dataType == 'dictionary'" :disabled="!item.editable" filterable :placeholder="getPlaceholder(item)" >
                 <el-option-group>
@@ -243,14 +250,11 @@ export default {
       for (var i = 0; i < this.editData.length; i++) {
         var item = this.editData[i]
         if (item.editable && !item.nullable && (item.value == null || (typeof  item.value == 'string' && item.value.trim() == ''))) {
-          swal({
-            title: '保存失败!',
-            text: `请输入【${item.label}】`,
-            type: 'error',
-            confirmButtonClass: 'btn btn-success',
-            confirmButtonText: 'OK',
-            buttonsStyling: false
-          })
+          this.$msgAlert.showSimpleErrorMsg(`请输入【${item.label}】`)
+          return
+        } else if (item.dataType === 'url' && item.value
+          && !item.value.toLocaleLowerCase().startsWith('http://') && !item.value.toLowerCase().startsWith('https://')) {
+          this.$msgAlert.showSimpleErrorMsg(`【${item.label}】应该以http(s)://开头`)
           return
         }
         rowData[item.columnName] = item.value
@@ -314,6 +318,9 @@ export default {
         return item
       })
       this.rowData = {}
+    },
+    test (item) {
+      console.log(arguments)
     },
     checkLogin (callback) {
       var app = this
